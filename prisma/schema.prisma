@@ -1,0 +1,20 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator json {
+  provider  = "prisma-json-types-generator"
+  namespace = "PrismaJson"
+}
+
+model User {
+  id         String     @id @default(uuid()) @map("_id")
+  email      String     @unique
+  name       String
+  createdAt  DateTime   @default(now())
+}
