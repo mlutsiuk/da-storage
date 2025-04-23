@@ -1,9 +1,11 @@
 import { z } from 'zod'
 import { publicProcedure, router } from '../trpc'
 import { authRouter } from './auth'
+import { itemsRouter } from './items'
 
 export const appRouter = router({
   auth: authRouter,
+  items: itemsRouter,
 
   hello: publicProcedure
     .input(

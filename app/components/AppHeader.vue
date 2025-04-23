@@ -16,7 +16,8 @@
         <UButton
           variant="link"
           color="neutral"
-          label="Campaigns"
+          label="Items"
+          :to="{ name: 'items' }"
         />
       </div>
 
