@@ -14,7 +14,116 @@ generator json {
 
 model User {
   id         String     @id @default(uuid()) @map("_id")
-  email      String     @unique
   name       String
+  email      String     @unique
   createdAt  DateTime   @default(now())
+
+  locations  Location[]
+  items      Item[]
+  stocks     Stock[]
+  inbounds   Inbound[]
+  outbounds  Outbound[]
+  transactions Transaction[]
 }
+
+model Location {
+  id         String     @id @default(uuid()) @map("_id")
+  name       String
+  userId     String
+  createdAt  DateTime   @default(now())
+
+  user       User?      @relation(fields: [userId], references: [id])
+  stocks     Stock[]
+  inbounds   Inbound[]
+  outbounds  Outbound[]
+}
+
+model Inbound {
+  id                String   @id @default(uuid()) @map("_id")
+  trackingCode      String
+  locationId        String
+  userId            String
+  quantity          Int
+  defectiveQuantity Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  location          Location? @relation(fields: [locationId], references: [id])
+  user              User?     @relation(fields: [userId], references: [id])
+}
+
+model Item {
+  id         String     @id @default(uuid()) @map("_id")
+  name       String
+  userId     String
+  createdAt  DateTime   @default(now())
+
+  user       User?      @relation(fields: [userId], references: [id])
+  stockItems StockItem[]
+}
+
+model Stock {
+  id         String     @id @default(uuid()) @map("_id")
+  locationId String
+  userId     String
+  createdAt  DateTime   @default(now())
+
+  user       User?      @relation(fields: [userId], references: [id])
+  location   Location?  @relation(fields: [locationId], references: [id])
+  stockItems StockItem[]
+}
+
+model StockItem {
+  id         String     @id @default(uuid()) @map("_id")
+  stockId    String
+  itemId     String
+  quantity   Int
+  createdAt  DateTime   @default(now())
+
+  stock      Stock?     @relation(fields: [stockId], references: [id])
+  item       Item?      @relation(fields: [itemId], references: [id])
+  outboundItems OutboundItem[]
+  transactionsFrom Transaction[] @relation("FromTransactions")
+  transactionsTo   Transaction[] @relation("ToTransactions")
+}
+
+model Outbound {
+  id         String     @id @default(uuid()) @map("_id")
+  number     String     @unique
+  locationId String
+  userId     String
+  note       String?
+  createdAt  DateTime   @default(now())
+
+  location   Location?  @relation(fields: [locationId], references: [id])
+  user       User?      @relation(fields: [userId], references: [id])
+  outboundItems OutboundItem[]
+}
+
+model OutboundItem {
+  id            String     @id @default(uuid()) @map("_id")
+  outboundId    String
+  stockItemId   String
+  quantity      Int
+  createdAt     DateTime   @default(now())
+
+  outbound      Outbound?  @relation(fields: [outboundId], references: [id])
+  stockItem     StockItem? @relation(fields: [stockItemId], references: [id])
+  transactions  Transaction[]
+}
+
+model Transaction {
+  id               String     @id @default(uuid()) @map("_id")
+  fromStockItemId  String?    // nullable
+  toStockItemId    String?    // nullable
+  outboundItemId   String?    // nullable
+  quantity         Int
+  userId           String
+  note             String?
+  createdAt        DateTime   @default(now())
+
+  fromStockItem    StockItem? @relation("FromTransactions", fields: [fromStockItemId], references: [id])
+  toStockItem      StockItem? @relation("ToTransactions", fields: [toStockItemId], references: [id])
+  outboundItem     OutboundItem? @relation(fields: [outboundItemId], references: [id])
+  user             User?      @relation(fields: [userId], references: [id])
+}
+
