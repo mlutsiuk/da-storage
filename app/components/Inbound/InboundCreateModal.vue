@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+
+const props = defineProps<{
+  trackingCode?: string
+}>()
 
 const emit = defineEmits<{ close: [boolean] }>()
 
@@ -14,7 +17,7 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
-  trackingCode: '',
+  trackingCode: props.trackingCode,
   locationId: '',
   quantity: 1,
   defectiveQuantity: 0
@@ -47,7 +50,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 </script>
 
 <template>
-  <UModal title="Add Inbound" :close="{ onClick: () => emit('close', false) }">
+  <UModal
+    title="Add Inbound"
+    :close="{ onClick: () => emit('close', false) }"
+  >
     <template #body>
       <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
         <UFormField label="Tracking Code" name="trackingCode">

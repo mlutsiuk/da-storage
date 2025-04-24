@@ -10,6 +10,7 @@ import { SpeedInsights } from '@vercel/speed-insights/vue'
       <NuxtPage />
     </NuxtLayout>
 
+    <Scanner />
     <SpeedInsights />
   </UApp>
 </template>

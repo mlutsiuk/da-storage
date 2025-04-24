@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, h } from 'vue'
-import { useToast } from '#imports'
 import { upperFirst } from 'scule'
 import type { TableColumn } from '@nuxt/ui'
 import { LazyInboundCreateModal } from '#components'
@@ -8,6 +6,7 @@ import { LazyInboundCreateModal } from '#components'
 const table = useTemplateRef('table')
 const toast = useToast()
 const overlay = useOverlay()
+const mitt = useMitt()
 
 const { data, refresh } = await useAsyncData('inbounds', () =>
   useTrpc().inbound.getAll.query({ page: 1, limit: 20 })
@@ -15,13 +14,16 @@ const { data, refresh } = await useAsyncData('inbounds', () =>
 
 const modal = overlay.create(LazyInboundCreateModal)
 
-async function openAddInboundModal() {
-  const shouldRefetch = await modal.open()
-
-  if (shouldRefetch) {
-    toast.add({ title: 'Inbound created', color: 'success' })
-    await refresh()
-  }
+function openAddInboundModal() {
+  mitt.emit('scanner:start', {
+    onScanned: async (code) => {
+      const shouldRefetch = await modal.open({ trackingCode: code })
+      if (shouldRefetch) {
+        toast.add({ title: 'Inbound created', color: 'success' })
+        await refresh()
+      }
+    }
+  })
 }
 
 const columns: TableColumn<any>[] = [
