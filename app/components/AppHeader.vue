@@ -16,8 +16,33 @@
         <UButton
           variant="link"
           color="neutral"
+          label="Inbound"
+          :to="{ name: 'inbounds' }"
+          icon="material-symbols:move-to-inbox-outline-sharp"
+        />
+
+        <UButton
+          variant="link"
+          color="neutral"
+          label="Stock"
+          :to="{ name: 'inbounds' }"
+          icon="mdi:store-check-outline"
+        />
+
+        <UButton
+          variant="link"
+          color="neutral"
           label="Items"
           :to="{ name: 'items' }"
+          icon="material-symbols:bomb-outline"
+        />
+
+        <UButton
+          variant="link"
+          color="neutral"
+          label="Locations"
+          :to="{ name: 'locations' }"
+          icon="material-symbols:garage-home-outline"
         />
       </div>
 

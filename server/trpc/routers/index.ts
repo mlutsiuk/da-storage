@@ -2,10 +2,14 @@ import { z } from 'zod'
 import { publicProcedure, router } from '../trpc'
 import { authRouter } from './auth'
 import { itemsRouter } from './items'
+import { inboundRouter } from './inbounds'
+import { locationRouter } from './locations'
 
 export const appRouter = router({
   auth: authRouter,
   items: itemsRouter,
+  inbound: inboundRouter,
+  locations: locationRouter,
 
   hello: publicProcedure
     .input(
