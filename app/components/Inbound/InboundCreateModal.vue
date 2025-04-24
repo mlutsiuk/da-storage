@@ -52,7 +52,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     // Save selected location to local storage as latest
     localStorage.setItem('latestLocationId', event.data.locationId)
 
-    await useTrpc().inbound.create.mutate(event.data)
+    const { trackingCode, ...rest } = event.data
+
+    await useTrpc().inbound.create.mutate({
+      ...rest,
+      trackingCode: trackingCode.replaceAll(' ', '')
+    })
     toast.add({ title: 'Inbound created', color: 'success' })
     emit('close', true)
   } catch (e) {
@@ -74,8 +79,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <UInput
             v-model="state.trackingCode"
             class="w-full"
+            v-maska="'## #### #### ####'"
           />
         </UFormField>
+
+        <pre>{{ state }}</pre>
 
         <UFormField label="Location" name="locationId">
           <USelectMenu

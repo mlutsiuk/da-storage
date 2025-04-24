@@ -19,7 +19,6 @@ function openAddInboundModal() {
     onScanned: async (code) => {
       const shouldRefetch = await modal.open({ trackingCode: code })
       if (shouldRefetch) {
-        toast.add({ title: 'Inbound created', color: 'success' })
         await refresh()
       }
     }
