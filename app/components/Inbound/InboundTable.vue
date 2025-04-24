@@ -103,7 +103,7 @@ const copyText = (text: string) => navigator.clipboard.writeText(text)
     >
       <template #trackingCode-cell="{ row }">
         <UTooltip :text="row.original.trackingCode">
-          <span class="font-mono">****{{ row.original.trackingCode.slice(-4) }}</span>
+          <span class="font-mono">*{{ row.original.trackingCode.slice(-4) }}</span>
         </UTooltip>
       </template>
 

@@ -26,9 +26,20 @@ const state = reactive<Partial<Schema>>({
 const isLoading = ref(false)
 const toast = useToast()
 
-const { data: locations } = await useAsyncData('locations', () =>
-  useTrpc().locations.getAll.query()
-)
+const { data: locations } = await useAsyncData('locations', () => useTrpc().locations.getAll.query())
+
+watch(locations, (locs) => {
+  if(!locs) return
+
+  if(state.locationId && state.locationId.length > 1) return
+
+  const latestLocationId = localStorage.getItem('latestLocationId')
+  if(locs.some((loc) => loc.id === latestLocationId)) {
+    state.locationId = latestLocationId!
+  }
+}, {
+  immediate: true
+})
 
 const locationOptions = computed(() => {
   return locations.value ?? []
@@ -38,6 +49,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   isLoading.value = true
 
   try {
+    // Save selected location to local storage as latest
+    localStorage.setItem('latestLocationId', event.data.locationId)
+
     await useTrpc().inbound.create.mutate(event.data)
     toast.add({ title: 'Inbound created', color: 'success' })
     emit('close', true)
