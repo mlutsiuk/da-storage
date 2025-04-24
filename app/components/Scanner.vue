@@ -20,11 +20,18 @@ async function start() {
   if (!container.value || isActive.value) return
 
   const cameras = await Html5Qrcode.getCameras()
-  if (!cameras.length || !cameras[0]) return
+  if (!cameras.length) return
+
+  const preferredCamera = cameras.find(c =>
+    /back|rear|environment/i.test(c.label)
+  ) ?? cameras[0]
+
+  if(!preferredCamera) return
+
+  const cameraId = preferredCamera.id
 
   isActive.value = true
 
-  const cameraId = cameras[0].id
   scanner.value = new Html5Qrcode(container.value.id, { verbose: false })
 
   await scanner.value.start(

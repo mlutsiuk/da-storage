@@ -23,7 +23,7 @@ const login = async () => {
     <ColorModeButton />
   </div>
 
-  <div class="flex flex-col gap-4 rounded-xl border bg-white p-6 dark:border-gray-700 dark:bg-gray-800 min-w-xl">
+  <div class="flex flex-col gap-4 rounded-xl border bg-white p-6 dark:border-gray-700 dark:bg-gray-800 min-w-full sm:min-w-xl">
     <h1 class="text-3xl font-bold">
       Log in
     </h1>
