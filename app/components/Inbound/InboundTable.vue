@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { upperFirst } from 'scule'
 import type { TableColumn } from '@nuxt/ui'
-import { LazyInboundCreateModal } from '#components'
+import { LazyInboundCreateModal, LazyInboundDeleteModal } from '#components'
 
 const table = useTemplateRef('table')
-const toast = useToast()
 const overlay = useOverlay()
 const mitt = useMitt()
 
@@ -12,17 +11,24 @@ const { data, refresh } = await useAsyncData('inbounds', () =>
   useTrpc().inbound.getAll.query({ page: 1, limit: 20 })
 )
 
-const modal = overlay.create(LazyInboundCreateModal)
+const createModal = overlay.create(LazyInboundCreateModal)
+const deleteModal = overlay.create(LazyInboundDeleteModal)
 
 function openAddInboundModal() {
   mitt.emit('scanner:start', {
     onScanned: async (code) => {
-      const shouldRefetch = await modal.open({ trackingCode: code })
+      const shouldRefetch = await createModal.open({ trackingCode: code })
       if (shouldRefetch) {
         await refresh()
       }
     }
   })
+}
+async function openDeleteInboundModal(id: string) {
+  const confirmed = await deleteModal.open({ id })
+  if (confirmed) {
+    await refresh()
+  }
 }
 
 const columns: TableColumn<any>[] = [
@@ -126,10 +132,17 @@ const copyText = (text: string) => navigator.clipboard.writeText(text)
               { type: 'label', label: 'Actions' },
               {
                 label: 'Copy tracking code',
+                icon: 'i-lucide-copy',
                 onSelect: () => copyText(row.original.trackingCode)
               },
               {
+                label: 'Delete',
+                icon: 'i-lucide-trash-2',
+                onSelect: () => openDeleteInboundModal(row.original.id)
+              },
+              {
                 label: row.getIsExpanded() ? 'Collapse' : 'Expand',
+                icon: row.getIsExpanded() ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down',
                 onSelect: () => row.toggleExpanded()
               }
             ]"

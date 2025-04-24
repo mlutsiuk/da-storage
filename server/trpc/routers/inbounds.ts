@@ -51,5 +51,17 @@ export const inboundRouter = router({
         locationId: input.locationId
       }
     })
+  }),
+
+  delete: privateProcedure.input(
+    z.object({ id: z.string().uuid() })
+  ).mutation(async ({ ctx, input }) => {
+    await ctx.prisma.inbound.delete({
+      where: {
+        id: input.id,
+        userId: ctx.auth.id
+      }
+    })
+    return { success: true }
   })
 })
