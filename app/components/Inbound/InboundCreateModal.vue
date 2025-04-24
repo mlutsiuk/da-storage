@@ -83,8 +83,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           />
         </UFormField>
 
-        <pre>{{ state }}</pre>
-
         <UFormField label="Location" name="locationId">
           <USelectMenu
             v-model="state.locationId"
