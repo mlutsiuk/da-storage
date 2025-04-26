@@ -91,7 +91,7 @@ onUnmounted(stop)
 
     <div
       v-if="isActive"
-      class="fixed inset-0 z-10"
+      class="fixed inset-0"
     >
       <UButton
         label="Cancel"
