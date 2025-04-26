@@ -12,7 +12,8 @@ export default defineNuxtConfig({
     '@nuxt/devtools',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@vite-pwa/nuxt'
   ],
 
   imports: {
