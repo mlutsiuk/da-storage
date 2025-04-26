@@ -17,7 +17,7 @@ mitt.on('scanner:start', ({ onScanned: callback }) => {
 })
 
 const cameraDevices = await Html5Qrcode.getCameras()
-const selectedCameraId = ref<string>(cameraDevices[0]?.id ?? '')
+const selectedCameraId = ref<string>(localStorage.getItem('selectedCameraId') || cameraDevices[0]?.id || '')
 
 async function start() {
   if (!container.value || isActive.value) return
@@ -68,6 +68,9 @@ async function stop() {
 }
 
 const onSelectedCameraChange = async () => {
+  // Save the current camera ID to local storage
+  localStorage.setItem('selectedCameraId', selectedCameraId.value)
+
   await stop()
 
   await start()
