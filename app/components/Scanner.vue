@@ -16,26 +16,22 @@ mitt.on('scanner:start', ({ onScanned: callback }) => {
   start()
 })
 
+const cameraDevices = await Html5Qrcode.getCameras()
+const selectedCameraId = ref<string>(cameraDevices[0]?.id ?? '')
+
 async function start() {
   if (!container.value || isActive.value) return
 
   const cameras = await Html5Qrcode.getCameras()
+  
   if (!cameras.length) return
-
-  const preferredCamera = cameras.find(c =>
-    /back|rear|environment/i.test(c.label)
-  ) ?? cameras[0]
-
-  if(!preferredCamera) return
-
-  const cameraId = preferredCamera.id
 
   isActive.value = true
 
   scanner.value = new Html5Qrcode(container.value.id, { verbose: false })
 
   await scanner.value.start(
-    cameraId,
+    selectedCameraId.value,
     {
       fps: 10,
       qrbox: (viewfinderWidth, viewfinderHeight) => {
@@ -71,6 +67,12 @@ async function stop() {
   isActive.value = false
 }
 
+const onSelectedCameraChange = async () => {
+  await stop()
+
+  await start()
+}
+
 onUnmounted(stop)
 </script>
 
@@ -78,14 +80,19 @@ onUnmounted(stop)
   <Teleport to="body">
     <div
       v-show="isActive"
-      class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80"
+      class="fixed inset-0 flex items-center justify-center bg-black/80"
     >
       <div
         ref="container"
         :id="`qr-scanner-global`"
         class="w-full rounded overflow-hidden"
       />
+    </div>
 
+    <div
+      v-if="isActive"
+      class="fixed inset-0 z-10"
+    >
       <UButton
         label="Cancel"
         icon="i-lucide-x"
@@ -94,6 +101,16 @@ onUnmounted(stop)
         variant="solid"
         class="fixed bottom-6 left-1/2 -translate-x-1/2"
         @click="stop"
+      />
+
+      <USelectMenu
+        :items="cameraDevices"
+        value-key="id"
+        label-key="label"
+        v-model="selectedCameraId"
+        class="fixed top-6 left-1/2 -translate-x-1/2"
+        :search-input="false"
+        @change="onSelectedCameraChange"
       />
     </div>
   </Teleport>
