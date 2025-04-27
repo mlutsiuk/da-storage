@@ -18,10 +18,12 @@ export default antfu({
     'antfu/top-level-function': 'off',
     'ts/consistent-type-definitions': 'off'
   }
-}, ...compat.config({
-  extends: ['plugin:tailwindcss/recommended'],
-  rules: {
-    'tailwindcss/no-custom-classname': 'off',
-    'tailwindcss/migration-from-tailwind-2': 'off'
-  }
-})) 
+})
+
+// ...compat.config({
+//   extends: ['plugin:tailwindcss/recommended'],
+//   rules: {
+//     'tailwindcss/no-custom-classname': 'off',
+//     'tailwindcss/migration-from-tailwind-2': 'off'
+//   }
+// })

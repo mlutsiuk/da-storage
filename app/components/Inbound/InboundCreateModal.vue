@@ -10,17 +10,13 @@ const emit = defineEmits<{ close: [boolean] }>()
 
 const schema = z.object({
   trackingCode: z.string().min(4, 'Tracking code is required'),
-  locationId: z.string().min(1, 'Location is required'),
-  quantity: z.number().min(1, 'Quantity must be at least 1'),
-  defectiveQuantity: z.number().min(0)
+  locationId: z.string().min(1, 'Location is required')
 })
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
   trackingCode: props.trackingCode,
-  locationId: '',
-  quantity: 1,
-  defectiveQuantity: 0
+  locationId: ''
 })
 
 const isLoading = ref(false)
@@ -55,7 +51,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     const { trackingCode, ...rest } = event.data
 
     await useTrpc().inbound.create.mutate({
-      ...rest,
       trackingCode: trackingCode.replaceAll(' ', '')
     })
     toast.add({ title: 'Inbound created', color: 'success' })
@@ -90,19 +85,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             value-key="id"
             label-key="name"
             placeholder="Select a location"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField label="Quantity" name="quantity">
-          <UInput v-model="state.quantity" type="number" min="1" class="w-full" />
-        </UFormField>
-
-        <UFormField label="Defective Quantity" name="defectiveQuantity">
-          <UInput
-            v-model="state.defectiveQuantity"
-            type="number"
-            min="0"
             class="w-full"
           />
         </UFormField>

@@ -37,18 +37,6 @@ const columns: TableColumn<any>[] = [
     header: 'Tracking'
   },
   {
-    accessorKey: 'location.name',
-    header: 'Location'
-  },
-  {
-    accessorKey: 'quantity',
-    header: 'Qty'
-  },
-  {
-    accessorKey: 'defectiveQuantity',
-    header: 'Defects'
-  },
-  {
     accessorKey: 'createdAt',
     header: 'Received'
   },
@@ -107,13 +95,12 @@ const copyText = (text: string) => navigator.clipboard.writeText(text)
       class="min-h-96"
     >
       <template #trackingCode-cell="{ row }">
-        <UTooltip :text="row.original.trackingCode">
-          <span class="font-mono">*{{ row.original.trackingCode.slice(-4) }}</span>
+        <UTooltip
+          :text="row.original.trackingCode"
+          :delay-duration="0"
+        >
+          <span class="font-mono">*{{ row.original.trackingCode.slice(-4) }}{{ row.original.subTrackingCode ? `-${row.original.subTrackingCode}` : '' }}</span>
         </UTooltip>
-      </template>
-
-      <template #location.name-cell="{ row }">
-        {{ row.original.location?.name ?? '—' }}
       </template>
 
       <template #createdAt-cell="{ row }">

@@ -1,37 +1,61 @@
 <script setup lang="ts">
+import type {
+  CameraDevice
+} from 'html5-qrcode'
+import type { ScannerCallbackPayload } from '~/types/scanner'
 import {
   Html5Qrcode,
-  Html5QrcodeSupportedFormats,
-  Html5QrcodeScanType
+  Html5QrcodeScanType,
+  Html5QrcodeSupportedFormats
 } from 'html5-qrcode'
 
 const container = ref<HTMLElement | null>(null)
 const scanner = ref<Html5Qrcode | null>(null)
 const isActive = ref(false)
-const onScanned = ref<(code: string) => void>()
+let onScanned: ((payload: ScannerCallbackPayload) => void) | null = null
 
 const mitt = useMitt()
 mitt.on('scanner:start', ({ onScanned: callback }) => {
-  onScanned.value = callback
+  onScanned = callback
   start()
 })
+mitt.on('scanner:pause', pause)
+mitt.on('scanner:resume', resume)
 
-const cameraDevices = await Html5Qrcode.getCameras()
-const selectedCameraId = ref<string>(localStorage.getItem('selectedCameraId') || cameraDevices[0]?.id || '')
+let cameraDevices: CameraDevice[] = []
+const selectedCameraId = ref<string | null>(null)
+
+const init = async () => {
+  if (cameraDevices.length === 0) {
+    cameraDevices = await Html5Qrcode.getCameras()
+
+    if (!cameraDevices.length)
+      return false
+
+    selectedCameraId.value = localStorage.getItem('selectedCameraId') || cameraDevices[0]?.id || null
+  }
+
+  return true
+}
 
 async function start() {
-  if (!container.value || isActive.value) return
+  if (!container.value || isActive.value)
+    return
 
-  const cameras = await Html5Qrcode.getCameras()
-  
-  if (!cameras.length) return
+  if (!await init()) {
+    useToast().add({
+      title: 'No camera found',
+      description: 'Please connect a camera and try again.',
+      color: 'error'
+    })
+    return
+  }
 
   isActive.value = true
-
   scanner.value = new Html5Qrcode(container.value.id, { verbose: false })
 
   await scanner.value.start(
-    selectedCameraId.value,
+    selectedCameraId.value!,
     {
       fps: 10,
       qrbox: (viewfinderWidth, viewfinderHeight) => {
@@ -51,8 +75,10 @@ async function start() {
       ]
     },
     (decodedText) => {
-      onScanned.value?.(decodedText)
-      stop()
+      onScanned?.({
+        value: decodedText,
+        close: stop
+      })
     },
     () => {}
   )
@@ -67,12 +93,24 @@ async function stop() {
   isActive.value = false
 }
 
+function pause() {
+  if (scanner.value) {
+    scanner.value.pause()
+  }
+}
+function resume() {
+  if (scanner.value) {
+    scanner.value.resume()
+  }
+}
+
 const onSelectedCameraChange = async () => {
-  // Save the current camera ID to local storage
+  if (!selectedCameraId.value)
+    return
+
   localStorage.setItem('selectedCameraId', selectedCameraId.value)
 
   await stop()
-
   await start()
 }
 
@@ -86,8 +124,8 @@ onUnmounted(stop)
       class="fixed inset-0 flex items-center justify-center bg-black/80"
     >
       <div
+        id="qr-scanner-global"
         ref="container"
-        :id="`qr-scanner-global`"
         class="w-full rounded overflow-hidden"
       />
     </div>
@@ -107,10 +145,10 @@ onUnmounted(stop)
       />
 
       <USelectMenu
+        v-model="selectedCameraId"
         :items="cameraDevices"
         value-key="id"
         label-key="label"
-        v-model="selectedCameraId"
         class="fixed top-6 left-1/2 -translate-x-1/2"
         :search-input="false"
         @change="onSelectedCameraChange"

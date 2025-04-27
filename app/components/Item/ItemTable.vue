@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useToast } from '#imports'
 import type { TableColumn } from '@nuxt/ui'
-import { LazyItemCreateModal } from '#components'
 import type { Item } from '@prisma/client'
+import { LazyItemCreateModal } from '#components'
+import { useToast } from '#imports'
 
 const table = useTemplateRef('table')
 const toast = useToast()
@@ -38,7 +38,7 @@ const columns: TableColumn<Item>[] = [
     id: 'actions',
     header: () => h('div', { class: 'text-right w-full' }, 'Actions'),
     enableHiding: false
-  },
+  }
 ]
 
 const copyText = (text: string) => navigator.clipboard.writeText(text)
@@ -61,14 +61,14 @@ const copyText = (text: string) => navigator.clipboard.writeText(text)
           color="primary"
           @click="openAddItemModal"
         />
-        
+
         <UDropdownMenu
           :items="table?.tableApi?.getAllColumns().filter(c => c.getCanHide()).map(c => ({
             label: c.id,
             type: 'checkbox',
             checked: c.getIsVisible(),
             onUpdateChecked: (v: boolean) => table?.tableApi?.getColumn(c.id)?.toggleVisibility(!!v),
-            onSelect: (e?: Event) => e?.preventDefault()
+            onSelect: (e?: Event) => e?.preventDefault(),
           }))"
         >
           <UButton
@@ -91,16 +91,16 @@ const copyText = (text: string) => navigator.clipboard.writeText(text)
       <template #select-header="{ table }">
         <UCheckbox
           :model-value="table.getIsSomePageRowsSelected() ? 'indeterminate' : table.getIsAllPageRowsSelected()"
-          @update:model-value="(v) => table.toggleAllPageRowsSelected(!!v)"
           aria-label="Select all"
+          @update:model-value="(v) => table.toggleAllPageRowsSelected(!!v)"
         />
       </template>
 
       <template #select-cell="{ row }">
         <UCheckbox
           :model-value="row.getIsSelected()"
-          @update:model-value="(v) => row.toggleSelected(!!v)"
           aria-label="Select row"
+          @update:model-value="(v) => row.toggleSelected(!!v)"
         />
       </template>
 
@@ -121,7 +121,7 @@ const copyText = (text: string) => navigator.clipboard.writeText(text)
           day: 'numeric',
           month: 'short',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
         }) }}
       </template>
 
@@ -135,12 +135,12 @@ const copyText = (text: string) => navigator.clipboard.writeText(text)
                 onSelect: () => {
                   copyText(row.original.id)
                   toast.add({ title: 'ID copied', icon: 'i-lucide-check-circle', color: 'success' })
-                }
+                },
               },
               {
                 label: row.getIsExpanded() ? 'Collapse' : 'Expand',
-                onSelect: () => row.toggleExpanded()
-              }
+                onSelect: () => row.toggleExpanded(),
+              },
             ]"
             :content="{ align: 'end' }"
           >

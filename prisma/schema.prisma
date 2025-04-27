@@ -34,21 +34,30 @@ model Location {
 
   user       User?      @relation(fields: [userId], references: [id])
   stocks     Stock[]
-  inbounds   Inbound[]
-  outbounds  Outbound[]
 }
 
 model Inbound {
-  id                String   @id @default(uuid()) @map("_id")
-  trackingCode      String
-  locationId        String
-  userId            String
-  quantity          Int
-  defectiveQuantity Int      @default(0)
-  createdAt         DateTime @default(now())
+  id               String       @id @default(uuid()) @map("_id")
+  trackingCode     String
+  subTrackingCode  String?
+  userId           String
+  createdAt        DateTime      @default(now())
+  user             User?          @relation(fields: [userId], references: [id])
+  inboundItems     InboundItem[]
 
-  location          Location? @relation(fields: [locationId], references: [id])
-  user              User?     @relation(fields: [userId], references: [id])
+  stock            Stock?         @relation(name: "StockInbound")
+}
+
+model InboundItem {
+  id                String    @id @default(uuid()) @map("_id")
+  inboundId         String
+  itemId            String
+  quantity          Int
+  defectiveQuantity Int       @default(0)
+  createdAt         DateTime  @default(now())
+
+  inbound           Inbound?  @relation(fields: [inboundId], references: [id])
+  item              Item?     @relation(fields: [itemId], references: [id])
 }
 
 model Item {
@@ -59,16 +68,19 @@ model Item {
 
   user       User?      @relation(fields: [userId], references: [id])
   stockItems StockItem[]
+  inboundItems InboundItem[]
 }
 
 model Stock {
   id         String     @id @default(uuid()) @map("_id")
   locationId String
   userId     String
+  inboundId  String?    @unique
   createdAt  DateTime   @default(now())
 
   user       User?      @relation(fields: [userId], references: [id])
   location   Location?  @relation(fields: [locationId], references: [id])
+  inbound    Inbound?   @relation(name: "StockInbound", fields: [inboundId], references: [id])
   stockItems StockItem[]
 }
 
@@ -89,12 +101,10 @@ model StockItem {
 model Outbound {
   id         String     @id @default(uuid()) @map("_id")
   number     String     @unique
-  locationId String
   userId     String
   note       String?
   createdAt  DateTime   @default(now())
 
-  location   Location?  @relation(fields: [locationId], references: [id])
   user       User?      @relation(fields: [userId], references: [id])
   outboundItems OutboundItem[]
 }
@@ -113,9 +123,9 @@ model OutboundItem {
 
 model Transaction {
   id               String     @id @default(uuid()) @map("_id")
-  fromStockItemId  String?    // nullable
-  toStockItemId    String?    // nullable
-  outboundItemId   String?    // nullable
+  fromStockItemId  String?
+  toStockItemId    String?
+  outboundItemId   String?
   quantity         Int
   userId           String
   note             String?
@@ -126,4 +136,3 @@ model Transaction {
   outboundItem     OutboundItem? @relation(fields: [outboundItemId], references: [id])
   user             User?      @relation(fields: [userId], references: [id])
 }
-

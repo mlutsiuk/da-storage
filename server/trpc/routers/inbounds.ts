@@ -14,9 +14,6 @@ export const inboundRouter = router({
 
     const inbounds = await ctx.prisma.inbound.findMany({
       where: { userId: ctx.auth.id },
-      include: {
-        location: true
-      },
       orderBy: { [sortBy]: sortOrder },
       skip: (page - 1) * limit,
       take: limit
@@ -37,18 +34,41 @@ export const inboundRouter = router({
   create: privateProcedure.input(
     z.object({
       trackingCode: z.string().min(4, 'Tracking code is required'),
-      locationId: z.string(),
-      quantity: z.number().min(1),
-      defectiveQuantity: z.number().min(0).default(0)
+      subTrackingCode: z.string().optional()
     })
   ).mutation(async ({ ctx, input }) => {
     return ctx.prisma.inbound.create({
       data: {
         trackingCode: input.trackingCode,
-        quantity: input.quantity,
-        defectiveQuantity: input.defectiveQuantity,
+        subTrackingCode: input.subTrackingCode,
         userId: ctx.auth.id,
-        locationId: input.locationId
+      }
+    })
+  }),
+
+  getCountByTrackingCode: privateProcedure.input(
+    z.object({
+      trackingCode: z.string().min(4, 'Tracking code is required')
+    })
+  ).query(async ({ ctx, input }) => {
+    const count = await ctx.prisma.inbound.count({
+      where: {
+        trackingCode: input.trackingCode,
+        userId: ctx.auth.id
+      }
+    })
+    return { count }
+  }),
+  
+  getByTrackingCode: privateProcedure.input(
+    z.object({
+      trackingCode: z.string().min(4, 'Tracking code is required')
+    })
+  ).query(async ({ ctx, input }) => {
+    return ctx.prisma.inbound.findMany({
+      where: {
+        trackingCode: input.trackingCode,
+        userId: ctx.auth.id
       }
     })
   }),
